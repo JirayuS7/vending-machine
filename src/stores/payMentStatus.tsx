@@ -22,11 +22,14 @@ export const paymentStatusSlice = createSlice({
     inActivePaymentStatus: (state) => {
         state.value = false
     },
+
+  
+    
    
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { activePaymentStatus, inActivePaymentStatus } = paymentStatusSlice.actions
+export const { activePaymentStatus, inActivePaymentStatus     } = paymentStatusSlice.actions
 
 export default paymentStatusSlice.reducer

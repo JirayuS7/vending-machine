@@ -31,13 +31,11 @@ export const itemOnCartSlice = createSlice({
 
       if (state.find((item) => item.id === action.payload.id)) {
         const item = state.find((item) => item.id === action.payload.id)
-        console.log(item)
         if (item) {
           item.amount += 1
         }
 
       } else {
-        console.log(state)
         state.push(action.payload)
       }
 
@@ -63,10 +61,15 @@ export const itemOnCartSlice = createSlice({
         item.amount = action.payload.amount
       }
     },
+
+
+    removeAllItem: (state) => { 
+      state.splice(0, state.length)
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { addItemToCart, removeItemOncart, changeAmount } = itemOnCartSlice.actions
+export const { addItemToCart, removeItemOncart, changeAmount ,removeAllItem } = itemOnCartSlice.actions
 
 export default itemOnCartSlice.reducer

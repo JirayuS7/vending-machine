@@ -11,6 +11,9 @@ export default function LayoutShop({ children }: { children: ReactNode }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+
+  
+
   return (
     <>
       {" "}

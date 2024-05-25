@@ -2,12 +2,17 @@ import { configureStore } from '@reduxjs/toolkit'
 import   totalItemSlice  from './stores/totalItem'
 import   itemOnCartSlice  from './stores/itemOnCart'
 import   paymentStatusSlice  from './stores/payMentStatus'
+import endProcessPayment from './stores/endProcessPayment'
+import paymentTopUpSlice   from './stores/paymentTopup'
 
 export const store = configureStore({
     reducer: {
         totalItem: totalItemSlice,
         itemOnCart : itemOnCartSlice,
         paymentStatus: paymentStatusSlice,
+        endProcessPayment: endProcessPayment,
+        paymentTopUp : paymentTopUpSlice
+
     },
 })
 

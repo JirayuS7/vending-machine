@@ -10,7 +10,9 @@ import type { RootState } from "./store";
 import { incrementTotal } from "./stores/totalItem";
 import ConvertItemToCart from "./components/convertItemTocart";
 import { addItemToCart, itemOncCartState } from "./stores/itemOnCart";
+import {endProcessPayment} from "./stores/endProcessPayment";
 import { MaxLengthText } from "./components/MaxLengthText";
+import ConfirmPayment from "./pages/ConfirmPayment";
 
 interface BeerProps {
   id: number;
@@ -27,9 +29,9 @@ function App() {
   // redux
 
   const dispatch = useDispatch();
-  const count = useSelector((state: RootState) => state.totalItem.value);
+ 
 
-  const itemsOncart = useSelector((state: RootState) => state.itemOnCart);
+  const endProcess =  useSelector((state: RootState) => state.endProcessPayment.value);
 
   async function getData() {
     axios
@@ -67,10 +69,12 @@ function App() {
 
   
 
+  
+
   return (
     <>
       <LayoutShop>
-        <div className="row g-2">
+        {endProcess ? <ConfirmPayment /> :   <div className="row g-2">
           {BeerList &&
             BeerList.map((beer) => {
               const CovertItemToCart = ConvertItemToCart(
@@ -138,7 +142,8 @@ function App() {
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             </div>
           )}
-        </div>
+        </div>}
+       
       </LayoutShop>
     </>
   );
