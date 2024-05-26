@@ -66,7 +66,7 @@ function FilterBar({
           <span className="me-3">Filter :</span>
           <Select
             showSearch
-            placeholder="Select a person"
+            placeholder="Select a Filter"
             optionFilterProp="children"
             onChange={onChange}
             filterOption={filterOption}
