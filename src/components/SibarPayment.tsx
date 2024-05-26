@@ -30,7 +30,7 @@ export const QrCodeCard = () => {
 };
 
 export default function SibarPayment() {
-  const [payMentMode, setPayMentMode] = useState<string>("qrCode");
+  const [payMentMode, setPayMentMode] = useState<string>("  ");
 
   const dispatch = useDispatch();
  
@@ -102,7 +102,7 @@ export default function SibarPayment() {
                 className={
                   payMentMode === "beerPayment"
                     ? "text-success w-100 fw-bolder mb-2"
-                    : "opacity-50 w-100 mb-2"
+                    : "opacity-100 w-100 mb-2"
                 }
                 onClick={() => {
                   // CountDown()
@@ -120,7 +120,7 @@ export default function SibarPayment() {
                 className={
                   payMentMode === "qrCode"
                     ? "text-success w-100 fw-bolder mb-2"
-                    : "opacity-50  w-100 mb-2"
+                    : "opacity-100  w-100 mb-2"
                 }
                 onClick={() => {
                   setOpen(true);

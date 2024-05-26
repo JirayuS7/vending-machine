@@ -2,7 +2,7 @@ import SibarPayment from "./components/SibarPayment";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
-import { InputNumber } from "antd";
+import { Alert, InputNumber, NotificationArgsProps, notification    } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { MaxLengthText } from "./components/MaxLengthText";
 import {
@@ -10,8 +10,10 @@ import {
   itemOncCartState,
   removeItemOncart,
 } from "./stores/itemOnCart";
-
-function TotalPrice(items: itemOncCartState[]) {
+ 
+import React from "react";
+type NotificationPlacement = NotificationArgsProps['placement'];
+export function TotalPrice(items: itemOncCartState[]) {
   const total = items.reduce(
     (total, item) => total + item.price * item.amount,
     0
@@ -19,24 +21,31 @@ function TotalPrice(items: itemOncCartState[]) {
   return total.toFixed(2);
 }
 
-function TotalAmount(items: itemOncCartState[]) {
+export function TotalAmount(items: itemOncCartState[]) {
   const total = items.reduce((total, item) => total + item.amount, 0);
   return total;
 }
 
+ 
+
 export default function SibarCart() {
   const cartItems = useSelector((state: RootState) => state.itemOnCart);
-  const payMentStatus = useSelector(
-    (state: RootState) => state.paymentStatus.value
-  );
   const count = cartItems && cartItems.length;
   const dispatch = useDispatch();
 
   const total = TotalPrice(cartItems);
   const amount = TotalAmount(cartItems);
 
+  const [api, contextHolder] = notification.useNotification();
+  const openNotification = (placement: NotificationPlacement) => {
+    api.info({
+      message: `Out of stock`, 
+      placement,
+    });
+  };
+  
   return (
-    <>
+    <> {contextHolder}
       {/*  check out page  */}
       <div className="p-2">
         <div>
@@ -54,7 +63,7 @@ export default function SibarCart() {
           <ul className="list-group  ">
             {cartItems &&
               cartItems.map((item: itemOncCartState, index) => {
-                const total = item.price * item.amount;
+                // const total = item.price * item.amount;
 
                 return (
                   <li
@@ -69,7 +78,7 @@ export default function SibarCart() {
                           </div>
 
                           <div className="text-warning fs-6">
-                            <small> {total.toFixed(2)}</small>
+                            <small> {item.price.toFixed(2)}</small>
                           </div>
                         </div>
                       </div>
@@ -85,17 +94,33 @@ export default function SibarCart() {
                             style={{ width: "30px" }}
                           />
                         </div>
+
                         <div>
                           <span className="text-gary-100">x</span>{" "}
+                      
                           <InputNumber
                             min={1}
-                            max={10}
+                            max={15}
                             value={item.amount}
                             defaultValue={item.amount}
                             onChange={(e) => {
-                              dispatch(
-                                changeAmount({ ...item, amount: e as number })
-                              );
+
+                              const value = e as number;
+
+                              if (item.stock < value) {
+                                openNotification("bottomRight");
+                                //  alert("Stock is not enough");
+
+                              } else {
+
+                                dispatch(
+                                  changeAmount({ ...item, amount: e as number })
+                                );
+                              }
+
+
+
+
                             }}
                             size={"small"}
                             style={{ width: "50px" }}
@@ -130,7 +155,7 @@ export default function SibarCart() {
           </div>
           <div className="text-warning fs-4"> $ {total || 0}</div>
         </div>
-{/* 
+        {/* 
         {!payMentStatus && (
           <div>
             <button

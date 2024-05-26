@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Button, Empty, Layout, theme } from "antd";
+import { Button, Empty, Layout, Skeleton, theme } from "antd";
 import { Card } from "antd";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,9 +10,10 @@ import type { RootState } from "./store";
 import { incrementTotal } from "./stores/totalItem";
 import ConvertItemToCart from "./components/convertItemTocart";
 import { addItemToCart, itemOncCartState } from "./stores/itemOnCart";
-import {endProcessPayment} from "./stores/endProcessPayment";
+import { endProcessPayment } from "./stores/endProcessPayment";
 import { MaxLengthText } from "./components/MaxLengthText";
 import ConfirmPayment from "./pages/ConfirmPayment";
+import { random } from "lodash";
 
 interface BeerProps {
   id: number;
@@ -25,15 +26,18 @@ interface BeerProps {
 
 function App() {
   const [BeerList, setBeerList] = useState<BeerProps[]>([]);
-
+  const [loading, setLoading] = useState(false);
   // redux
 
   const dispatch = useDispatch();
- 
 
-  const endProcess =  useSelector((state: RootState) => state.endProcessPayment.value);
+
+  const endProcess = useSelector((state: RootState) => state.endProcessPayment.value);
+  const CartItem = useSelector((state: RootState) => state.itemOnCart);
+  console.log("🚀 ~ App ~ CartItem:", CartItem)
 
   async function getData() {
+    setLoading(true);
     axios
       .get("https://api.sampleapis.com/beers/ale")
       .then((response) => {
@@ -51,15 +55,17 @@ function App() {
             name: response.data[i].name,
             image: response.data[i].image,
             rating: response.data[i].rating,
-            stock: 20,
+            stock: random(1, 15),
             price: convertPrice(response.data[i].price),
           });
         }
 
         setBeerList(newData);
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        loading && setLoading(false);
       });
   }
 
@@ -67,14 +73,14 @@ function App() {
     getData();
   }, []);
 
-  
 
-  
+
+
 
   return (
     <>
       <LayoutShop>
-        {endProcess ? <ConfirmPayment /> :   <div className="row g-2">
+        {endProcess ? <ConfirmPayment /> : <div className="row g-2">
           {BeerList &&
             BeerList.map((beer) => {
               const CovertItemToCart = ConvertItemToCart(
@@ -96,13 +102,15 @@ function App() {
                           style={{ width: 200 }}
                           onError={(e) => {
                             e.currentTarget.src =
-                              "https://placehold.co/400x600/png";
+                              "https://placehold.co/200x280/png";
                           }}
                         />
                       </div>
 
                       <div className="py-3">
-                        <h5 className="card-title text-center fs-6">
+                        <h5 className="card-title text-center fs-6  "
+                          style={{ height: 40 }}
+                        >
                           {MaxLengthText(beer.name, 28)}
                         </h5>
                         <p className="card-text text-center text-success fs-3">
@@ -125,7 +133,20 @@ function App() {
                           className="w-100 bg-warning border-0 fw-bold "
                           icon={<ShoppingCartOutlined />}
                           onClick={() => {
-                            dispatch(addItemToCart(CovertItemToCart));
+
+
+                            const isExist = CartItem.find((item) => item.id === beer.id) as itemOncCartState | undefined;
+
+                            const stockAmount = isExist?.amount || 0;
+                            if (stockAmount >= beer.stock) {
+                              alert("Stock is not enough");
+
+                            } else {
+                              dispatch(addItemToCart(CovertItemToCart));
+
+                            }
+
+
                           }}
                         >
                           Buy Now
@@ -137,13 +158,13 @@ function App() {
               );
             })}
 
-          {BeerList && BeerList.length === 0 && (
+          {loading ? (
             <div className="text-center">
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Skeleton active />
             </div>
-          )}
+          ) : null}
         </div>}
-       
+
       </LayoutShop>
     </>
   );

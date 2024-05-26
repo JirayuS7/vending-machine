@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, GetProp, Input, InputNumber, QRCode, Space } from "antd";
+import { Button, GetProp, Input, InputNumber,    Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { addSmtp, addPhoneNumber, addTopUp, addTotal } from "../stores/paymentTopup";
 import { RootState } from "../store";
@@ -10,6 +10,7 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import { inActivePaymentStatus } from "../stores/payMentStatus";
 import { endProcessPayment } from "../stores/endProcessPayment";
 import { removeAllItem } from "../stores/itemOnCart";
+import { TotalPrice } from "../sibar";
 export default function PaymentTopUp() {
   const phone = useSelector((state: RootState) => state.paymentTopUp.phone);
 
@@ -24,7 +25,7 @@ export default function PaymentTopUp() {
 
       {!isHasSmtp && isHasPhone ? <SmtpInput /> : null}
 
-      {isHasPhone && isHasSmtp && <Profile isHasSmtp={isHasSmtp} />}
+      {isHasPhone && isHasSmtp && <Profile />}
     </div>
   );
 }
@@ -77,6 +78,9 @@ export const SmtpInput: React.FC = () => {
 
 export const Profile = () => {
   const profile = useSelector((state: RootState) => state.paymentTopUp);
+  const cartItems = useSelector((state: RootState) => state.itemOnCart);
+  const totalPriceOnCart = TotalPrice(cartItems);
+ 
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [turnOnQr, setTurnOnQr] = useState(false);
@@ -127,11 +131,9 @@ export const Profile = () => {
 
             <Button
               className="bg-warning"
-              disabled={turnOnQr  || value === 0  ? true : false}
+              disabled={turnOnQr || value === 0 ? true : false}
               onClick={async () => {
-                // await dispatch(addTopUp(value));
                 setTurnOnQr(true);
-                // setValue(0);
               }}
             >
               Add
@@ -170,14 +172,18 @@ export const Profile = () => {
           disabled={profile.total === 0}
           onClick={() => {
 
+            if (profile.total <  Number(totalPriceOnCart)) {
+
+              alert("Your balance is not enough to pay for this item. Please top up more money.")
+
+            } else {
+              dispatch(inActivePaymentStatus());
+              dispatch(endProcessPayment(true));
+              dispatch(removeAllItem());
+            }
 
 
-            dispatch(inActivePaymentStatus());
-            dispatch(endProcessPayment(true));
-            dispatch(removeAllItem());
-            // dispatch(addTopUp(value));
-            // setValue(0);
-            // setTurnOnQr(false)
+             
           }}
         >
           <ShoppingCartOutlined /> Buy Now !
