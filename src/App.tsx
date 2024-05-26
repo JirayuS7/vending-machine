@@ -1,32 +1,25 @@
-import React, { useEffect, useState } from "react";
+import   { useEffect, useState } from "react";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import {
   Button,
-  Empty,
-  Layout,
   Skeleton,
-  theme,
   NotificationArgsProps,
   notification,
   Select,
   Input,
 } from "antd";
-import { Card } from "antd";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LayoutShop from "./Layout";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "./store";
-import { incrementTotal } from "./stores/totalItem";
 import ConvertItemToCart from "./components/convertItemTocart";
 import { addItemToCart, itemOncCartState } from "./stores/itemOnCart";
 import { MaxLengthText } from "./components/MaxLengthText";
 import ConfirmPayment from "./pages/ConfirmPayment";
-import { random } from "lodash";
 import { StarOutlined } from "@ant-design/icons";
-import Search from "antd/es/transfer/search";
-import type { SearchProps } from "antd/es/input/Search";
 
+ 
 interface BeerProps {
   id: number;
   name: string;
@@ -44,13 +37,16 @@ function FilterBar({
   SortHandle,
   setFilter,
 }: {
-  SortHandle: (type: string) => void;
-  setFilter: (value: string) => void;
-}) {
+  SortHandle:  (value: string) => void;
+   setFilter: (value: string) => void;
+  
+  }
+ ) {
+
+
   const onChange = (value: string) => {
     SortHandle(value);
-
-    setFilter(value);
+    setFilter(value as string);
   };
 
   // Filter `option.label` match the user type `input`
@@ -106,9 +102,9 @@ function FilterBar({
 function App() {
   const [BeerList, setBeerList] = useState<BeerProps[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [ filter, setFilter] = useState<string>();
   const [keyWord, setKeyWord] = useState("");
-
+ 
   // redux
 
   const dispatch = useDispatch();
@@ -149,6 +145,7 @@ function App() {
         if (keyWord === "") {
           setBeerList(newData);
         } else {
+          console.log(filter)
           setTimeout(() => {    setBeerList(FilterSearch);}, 500);
        
         }

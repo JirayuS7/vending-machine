@@ -1,8 +1,7 @@
 import SibarPayment from "./components/SibarPayment";
-import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
-import { Alert, InputNumber, NotificationArgsProps, notification    } from "antd";
+import {   InputNumber, NotificationArgsProps, notification    } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { MaxLengthText } from "./components/MaxLengthText";
 import {
@@ -11,7 +10,6 @@ import {
   removeItemOncart,
 } from "./stores/itemOnCart";
  
-import React from "react";
 type NotificationPlacement = NotificationArgsProps['placement'];
 export function TotalPrice(items: itemOncCartState[]) {
   const total = items.reduce(

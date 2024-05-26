@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import   { useEffect, useState } from "react";
 import { DollarOutlined } from "@ant-design/icons";
 import { Button, Modal  } from "antd";
 import { useDispatch, useSelector } from "react-redux";
