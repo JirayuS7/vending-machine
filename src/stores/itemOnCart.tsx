@@ -9,6 +9,10 @@ export interface itemOncCartState {
   stock: number,
   price: number,
   totolprice: number,
+  rating:  {
+    average: number,
+    reviews: number
+  },
 
 }
 
