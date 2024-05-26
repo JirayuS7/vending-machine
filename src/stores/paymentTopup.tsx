@@ -28,7 +28,8 @@ export const paymentTopUpSlice = createSlice({
             state.topUp = actions.payload;
         },
         addTotal: (state, actions) => { 
-            state.total = actions.payload;
+     
+            state.total =   actions.payload;
         },
 
     },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DollarOutlined } from "@ant-design/icons";
-import { Button, Modal, Radio, type RadioChangeEvent } from "antd";
+import { Button, Modal  } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { CheckOutlined } from "@ant-design/icons";
@@ -9,15 +9,31 @@ import {
   inActivePaymentStatus,
 } from "../stores/payMentStatus";
 import { endProcessPayment } from "../stores/endProcessPayment";
-import {removeAllItem} from "../stores/itemOnCart"
+import { removeAllItem } from "../stores/itemOnCart";
 import PaymentTopUp from "./PaymentTopUp";
+export const QrCodeCard = () => {
+  return (
+    <div>
+      <div className="  ">
+        <p className="mb-1">
+          Account Name : <strong> CCBBA DDF</strong>{" "}
+        </p>
+        <p className="mb-1">
+          Account Number : <strong> 09283874388383</strong>{" "}
+        </p>
+      </div>
+      <div>
+        <img src="githubQr.png" alt="qr code" className="w-100" />
+      </div>
+    </div>
+  );
+};
+
 export default function SibarPayment() {
   const [payMentMode, setPayMentMode] = useState<string>("qrCode");
 
   const dispatch = useDispatch();
-  const endProcess = useSelector(
-    (state: RootState) => state.endProcessPayment.value
-  );
+ 
   const cartItems = useSelector((state: RootState) => state.itemOnCart);
   const paymentStatus = useSelector(
     (state: RootState) => state.paymentStatus.value
@@ -35,24 +51,7 @@ export default function SibarPayment() {
 
   const [open, setOpen] = useState(false);
 
-  const QrCodeCard = () => {
-    return (
-      <div>
-        <div className="  ">
-          <p>
-            Account Name : <strong> CCBBA DDF</strong>{" "}
-          </p>
-          <p>
-            Account Number : <strong> 09283874388383</strong>{" "}
-          </p>
-        </div>
-        <div>
-          <img src="githubQr.png" alt="qr code" className="w-100" />
-        </div>
-      </div>
-    );
-  };
-
+ 
   const ConfirmButton = () => {
     return (
       <>
@@ -62,7 +61,7 @@ export default function SibarPayment() {
             className="bg-success text-white   fw-bolder"
             onClick={() => {
               setOpen(false);
-               dispatch(inActivePaymentStatus());
+              dispatch(inActivePaymentStatus());
               dispatch(endProcessPayment(true));
               dispatch(removeAllItem());
             }}
@@ -145,12 +144,13 @@ export default function SibarPayment() {
             </div>
           </div>
 
-          {payMentMode === "qrCode" &&    <div className="text-center">
-            <ConfirmButton />
-          </div>}
-        
+          {payMentMode === "qrCode" && (
+            <div className="text-center">
+              <ConfirmButton />
+            </div>
+          )}
         </div>
-      )} 
+      )}
       ,{paymentStatus && payMentMode === "beerPayment" ? <PaymentTopUp /> : ""}
     </>
   );

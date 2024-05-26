@@ -1,20 +1,16 @@
-import React, { useState } from "react";
-import { Button, Flex, GetProp, Input, InputNumber, Space, Tooltip } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, GetProp, Input, InputNumber, QRCode, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { addPhoneNumber, addSmtp, addTopUp } from "../stores/paymentTopup";
+import { addSmtp, addPhoneNumber, addTopUp, addTotal } from "../stores/paymentTopup";
 import { RootState } from "../store";
-
 import type { OTPProps } from "antd/es/input/OTP";
-
-interface NumericInputProps {
-  style: React.CSSProperties;
-  value: string;
-  onChange: (value: string) => void;
-}
-
+import NumberInputPhone from "./NumberInput";
+import { QrCodeCard } from "./SibarPayment";
+import { ShoppingCartOutlined } from "@ant-design/icons";
+import { inActivePaymentStatus } from "../stores/payMentStatus";
+import { endProcessPayment } from "../stores/endProcessPayment";
+import { removeAllItem } from "../stores/itemOnCart";
 export default function PaymentTopUp() {
-  const dispatch = useDispatch();
-  const [value, setValue] = useState("");
   const phone = useSelector((state: RootState) => state.paymentTopUp.phone);
 
   const smtp = useSelector((state: RootState) => state.paymentTopUp.smtp);
@@ -22,82 +18,18 @@ export default function PaymentTopUp() {
   const isHasPhone = phone.length > 0;
   const isHasSmtp = smtp.length > 0;
 
-  const InputPhone = () => {
-    return (
-      <div>
-        <p>Enter Your Phone Number</p>
-        <NumericInput
-          style={{ width: "100%" }}
-          value={value}
-          onChange={setValue}
-
-        // ;
-        />
-        <Button
-          className="mt-1 bg-warning fw-bold"
-          disabled={value.length !== 10}
-          block
-          onClick={() => {
-            dispatch(addPhoneNumber(value));
-          }}
-        >
-          Send OTP
-        </Button>
-      </div>
-    );
-  };
-
   return (
     <div className="text-white">
-      {!isHasPhone && <InputPhone />}
+      {!isHasPhone && <NumberInputPhone />}
 
       {!isHasSmtp && isHasPhone ? <SmtpInput /> : null}
 
-      {isHasPhone && isHasSmtp && <Profile />}
+      {isHasPhone && isHasSmtp && <Profile isHasSmtp={isHasSmtp} />}
     </div>
   );
 }
 
 //  phone
-const NumericInput = (props: NumericInputProps) => {
-  const { value, onChange } = props;
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value: inputValue } = e.target;
-    const reg = /^-?\d*(\.\d*)?$/;
-    if (reg.test(inputValue) || inputValue === "" || inputValue === "-") {
-      onChange(inputValue);
-    }
-  };
-
-  // '.' at the end or only '-' in the input box.
-  const handleBlur = () => {
-    let valueTemp = value;
-    if (value.charAt(value.length - 1) === "." || value === "-") {
-      valueTemp = value.slice(0, -1);
-    }
-    onChange(valueTemp.replace(/0*(\d+)/, "$1"));
-  };
-
-  const title = value ? null : "Phone Number Example: 061 229 333";
-
-  return (
-    <Tooltip
-      trigger={["focus"]}
-      title={title}
-      placement="topLeft"
-      overlayClassName="numeric-input"
-    >
-      <Input
-        {...props}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder="Phone Number"
-        maxLength={10}
-      />
-    </Tooltip>
-  );
-};
 
 // smtp
 
@@ -107,7 +39,7 @@ export const SmtpInput: React.FC = () => {
   const [value, setValue] = useState("");
 
   const onChange: GetProp<typeof Input.OTP, "onChange"> = (text) => {
-    console.log("onChange:", text);
+
     setValue(text);
   };
 
@@ -130,13 +62,13 @@ export const SmtpInput: React.FC = () => {
 
       <div className="py-3">
         <Button
-          key="back"
+          disabled={value.length !== 6}
           className="bg-warning text-white  w-100  fw-bolder"
           onClick={() => {
             dispatch(addSmtp(value));
           }}
         >
-          Confirm Payment
+          Send Confirm OTP
         </Button>
       </div>
     </div>
@@ -145,13 +77,19 @@ export const SmtpInput: React.FC = () => {
 
 export const Profile = () => {
   const profile = useSelector((state: RootState) => state.paymentTopUp);
-  console.log("🚀 ~ Profile ~ profile:", profile)
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
+  const [turnOnQr, setTurnOnQr] = useState(false);
+
+  useEffect(() => {
+    const total = profile.topUp + profile.total;
+    dispatch(addTotal(total));
+  }, [profile?.topUp]);
+
   return (
     <>
       <div className="border-1 border p-2 rounded-2">
-        <h4> Profile </h4>
+        <h4 className="d-flex justify-content-bettween"> Profile   </h4>
         <p className="mb-1">Name : {"K.Json"}</p>
         <p className="mb-1">Phone : {profile.phone}</p>
 
@@ -163,32 +101,87 @@ export const Profile = () => {
           </strong>
         </p>
 
+        <p>
+          <button className="  text-danger btn btn-sm   border-1 border border-danger"
+            onClick={() => {
+              dispatch(addSmtp(""));
+              dispatch(addTopUp(0));
+              dispatch(addPhoneNumber(""));
+              dispatch(addTotal(0));
+            }}
+          >Change Account</button>
+        </p>
+
         <div className="py-3">
+          <div className="me-2 mb-1">Top Up($)</div>
           <Space.Compact style={{ width: "100%" }}>
-            <span className="me-2">Top Up($)</span>
-            <InputNumber min={0} defaultValue={0}
+            <InputNumber
+              min={0}
+              disabled={turnOnQr ? true : false}
+              defaultValue={0}
               value={value}
               onChange={(e) => {
                 setValue(e as number);
-              } }
+              }}
             />
-            <Button className="bg-warning"
-              onClick={() => { dispatch(addTopUp(value)) }}
-            
-            >Add</Button>
-          </Space.Compact>
-          {/* <Button
-          key="back"
-          className="bg-warning text-white  w-100  fw-bolder"
 
+            <Button
+              className="bg-warning"
+              disabled={turnOnQr  || value === 0  ? true : false}
+              onClick={async () => {
+                // await dispatch(addTopUp(value));
+                setTurnOnQr(true);
+                // setValue(0);
+              }}
+            >
+              Add
+            </Button>
+          </Space.Compact>
+        </div>
+
+
+        {turnOnQr && <div id="topUpQr">
+          <h6> Top Up Amount :  $ {value.toFixed(2)}</h6>
+          <QrCodeCard />
+          <div className="py-3">
+            <Button
+              className="bg-success text-white  w-100  fw-bolder"
+              onClick={() => {
+                dispatch(addTopUp(value));
+                setValue(0);
+                setTurnOnQr(false)
+              }}
+            >
+              Confirm Payment
+            </Button>
+            <Button className="bg-danger text-white  w-100  fw-bolder mt-2"
+              onClick={() => {
+                setValue(0);
+                setTurnOnQr(false)
+              }} > Cancel </Button>
+          </div>
+        </div>}
+
+
+
+      </div>   <div>
+        <button
+          className="btn btn-warning w-100 mt-2 fw-bolder"
+          disabled={profile.total === 0}
           onClick={() => {
-            dispatch(addTopUp(112))
-            
+
+
+
+            dispatch(inActivePaymentStatus());
+            dispatch(endProcessPayment(true));
+            dispatch(removeAllItem());
+            // dispatch(addTopUp(value));
+            // setValue(0);
+            // setTurnOnQr(false)
           }}
         >
-          Confirm Payment
-        </Button> */}
-        </div>
+          <ShoppingCartOutlined /> Buy Now !
+        </button>
       </div>
     </>
   );

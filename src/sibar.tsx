@@ -130,7 +130,7 @@ export default function SibarCart() {
           </div>
           <div className="text-warning fs-4"> $ {total || 0}</div>
         </div>
-
+{/* 
         {!payMentStatus && (
           <div>
             <button
@@ -140,11 +140,10 @@ export default function SibarCart() {
               <ShoppingCartOutlined /> Check Out
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       {/*   Payment  */}
-
       <div className="p-2 border-top">
         <SibarPayment />
       </div>
